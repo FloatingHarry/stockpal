@@ -1,0 +1,15 @@
+Open Pixel Project character assets used in StockPal demo UI.
+
+Source:
+https://opengameart.org/content/opp2017-sprites-characters-objects-effects
+
+Downloaded files:
+- spr_m_old_idle_anim.gif -> lao-wang.gif
+- spr_m_pjnerd2.png -> code-bro.png
+- spr_m_traveler_look_anim.gif -> fomo-trader.gif
+
+License note from source page:
+- "These tiles are free to use, modify, sell, for any purpose, they are in the public domain!"
+- OpenGameArt page also lists CC0 among the license options and marks the set as public domain.
+
+Attribution is not required by the source page, but this file keeps the original source for reference.
