@@ -11,7 +11,9 @@ StockPal 是一个偏产品 Demo 形态的「股票情报陪看」Web 应用。
 
 ## 项目预览
 
-![StockPal dashboard preview](./docs/stockpal-dashboard.png)
+![StockPal dashboard v1](./docs/stockpal-dashboard-v1.png)
+
+![StockPal dashboard current](./docs/stockpal-dashboard.png)
 
 ## 当前版本定位
 
