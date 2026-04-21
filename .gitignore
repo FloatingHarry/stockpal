@@ -31,6 +31,10 @@ yarn-error.log*
 .pnpm-debug.log*
 *.log
 .tmp/
+bert/model.pth
+bert/__pycache__/
+bert/.ipynb_checkpoints/
+bert/exports/*.generated.json
 
 # env files (can opt-in for committing if needed)
 .env*

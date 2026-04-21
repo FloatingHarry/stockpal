@@ -53,10 +53,15 @@ export async function POST(request: NextRequest) {
     companionId,
     items: preparedFeed.normalizedItems,
     portfolio: snapshot.portfolio,
+    sentimentSnapshot: snapshot.sentimentSnapshot,
   });
 
   return NextResponse.json({
-    source: "mock",
+    source: {
+      companion: "mock",
+      sentiment: snapshot.sentimentSource,
+    },
     items,
   });
 }
+

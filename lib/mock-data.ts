@@ -4,6 +4,8 @@ export type SearchParams = {
   sector?: string | string[];
 };
 
+export type BoardTone = "ai" | "cloud" | "semis" | "index" | "risk";
+
 export type BehaviorState = {
   key: string;
   label: string;
@@ -49,7 +51,7 @@ export type FeedItem = {
   content: string;
   toneTag: string;
   createdAt: string;
-  boardTone?: "ai" | "cloud" | "semis" | "index" | "risk";
+  boardTone?: BoardTone;
 };
 
 export type PortfolioHolding = {
@@ -66,6 +68,17 @@ export type WatchTableRow = {
   change: string;
   heat: string;
   state: string;
+  sentimentLabel?: string;
+  sentimentScore?: number;
+  sentimentTrend?: string;
+};
+
+export type BreadthPoint = {
+  label: string;
+  value: number;
+  sentimentLabel?: string;
+  sentimentTrend?: string;
+  leaderTicker?: string;
 };
 
 export type ChartPoint = {
@@ -97,10 +110,7 @@ export type PortfolioSnapshot = {
     detail: string;
   }[];
   chartSeries: ChartPoint[];
-  breadthSeries: {
-    label: string;
-    value: number;
-  }[];
+  breadthSeries: BreadthPoint[];
   watchTable: WatchTableRow[];
   marketSnapshot: MarketSnapshot;
 };

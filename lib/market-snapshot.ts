@@ -1,14 +1,43 @@
 import { getDemoPortfolioSnapshot } from "@/lib/demo-content";
-import { defaultProfile, type PortfolioSnapshot, type UserProfile } from "@/lib/mock-data";
+import { defaultProfile, type BoardTone, type PortfolioSnapshot, type UserProfile } from "@/lib/mock-data";
 import type { NormalizedNewsItem } from "@/lib/news-normalizer";
 import { getLeadNews } from "@/lib/news-ranker";
 import { getQuoteProviderResult } from "@/lib/quote-provider";
+import {
+  buildSentimentSummary,
+  getSectorSentimentSignal,
+  getSentimentProviderResult,
+  getStockSentimentSignal,
+  type SentimentSnapshot,
+} from "@/lib/sentiment-provider";
 
 export type MarketSnapshotResult = {
   portfolio: PortfolioSnapshot;
   source: "mock";
   quoteSource: "mock";
+  sentimentSource: "offline-bert" | "mock";
+  sentimentSnapshot: SentimentSnapshot;
 };
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function inferBoardTone(value: string): BoardTone {
+  if (value.includes("AI")) {
+    return "ai";
+  }
+
+  if (value.includes("云")) {
+    return "cloud";
+  }
+
+  if (value.includes("半导体")) {
+    return "semis";
+  }
+
+  return "index";
+}
 
 function aggregateBoardHeat(items: NormalizedNewsItem[]) {
   const base = {
@@ -40,36 +69,70 @@ function aggregateBoardHeat(items: NormalizedNewsItem[]) {
   };
 }
 
-function toState(item?: NormalizedNewsItem) {
-  if (!item) {
-    return "观察";
+function blendHeat(baseValue: number, sentimentIntensity?: number) {
+  if (typeof sentimentIntensity !== "number") {
+    return baseValue;
   }
 
-  if (item.sentiment === "risk") {
+  return clamp(Math.round(baseValue * 0.62 + sentimentIntensity * 0.38), 20, 98);
+}
+
+function toState(item?: NormalizedNewsItem, sentimentLabel?: string) {
+  if (item?.sentiment === "risk" || sentimentLabel === "偏空") {
     return "谨慎";
   }
 
-  if (item.sentiment === "bullish") {
+  if (sentimentLabel === "偏多" || item?.sentiment === "bullish") {
     return "跟踪";
   }
 
   return "观察";
 }
 
-function toHeatLabel(item?: NormalizedNewsItem) {
-  if (!item) {
-    return "中";
+function toHeatLabel(item?: NormalizedNewsItem, sentimentIntensity?: number) {
+  const combined = Math.max(item?.importance ?? 0, sentimentIntensity ?? 0);
+
+  if (combined >= 88) {
+    return "高热";
   }
 
-  if (item.importance >= 88) {
-    return "高";
-  }
-
-  if (item.importance >= 74) {
+  if (combined >= 74) {
     return "中高";
   }
 
-  return "中";
+  if (combined >= 58) {
+    return "中等";
+  }
+
+  return "低位";
+}
+
+function buildSummaryLabel(summary: ReturnType<typeof buildSentimentSummary>) {
+  if (summary.marketSignal === "分歧扩大") {
+    return summary.focusStock
+      ? `${summary.focusStock.ticker} 分歧扩大`
+      : "主线分歧扩大";
+  }
+
+  if (summary.marketSignal === "情绪偏热") {
+    return summary.focusSector
+      ? `${summary.focusSector.name} 情绪偏热`
+      : "市场情绪偏热";
+  }
+
+  if (summary.marketSignal === "情绪回落") {
+    return "风险偏好回落";
+  }
+
+  if (summary.marketSignal === "情绪修复") {
+    return summary.focusSector
+      ? `${summary.focusSector.name} 情绪修复`
+      : "情绪正在修复";
+  }
+
+  return summary.focusSector
+    ? `${summary.focusSector.name} 继续观察`
+    : "盘面仍可观察";
 }
 
 export async function getMarketSnapshotResult(
@@ -78,6 +141,7 @@ export async function getMarketSnapshotResult(
   normalizedItems: NormalizedNewsItem[] = [],
 ): Promise<MarketSnapshotResult> {
   const quote = await getQuoteProviderResult(profile, frame);
+  const sentiment = await getSentimentProviderResult(profile);
   const basePortfolio = getDemoPortfolioSnapshot({
     profile,
     frame,
@@ -85,6 +149,17 @@ export async function getMarketSnapshotResult(
   });
   const boardHeat = aggregateBoardHeat(normalizedItems);
   const lead = getLeadNews(normalizedItems, profile);
+  const focusTicker = lead?.symbol ?? basePortfolio.focusTicker;
+  const focusSectorKey = lead?.boardTone ?? inferBoardTone(profile.sectors[0] ?? "AI 基建");
+  const sentimentSummary = buildSentimentSummary({
+    snapshot: sentiment.snapshot,
+    profile,
+    focusTicker,
+    sectorKey:
+      focusSectorKey === "risk"
+        ? "index"
+        : focusSectorKey,
+  });
   const symbolNews = new Map<string, NormalizedNewsItem>();
 
   for (const item of normalizedItems) {
@@ -93,50 +168,83 @@ export async function getMarketSnapshotResult(
     }
   }
 
+  const aiSignal = getSectorSentimentSignal(sentiment.snapshot, "ai");
+  const cloudSignal = getSectorSentimentSignal(sentiment.snapshot, "cloud");
+  const semisSignal = getSectorSentimentSignal(sentiment.snapshot, "semis");
+  const indexSignal = getSectorSentimentSignal(sentiment.snapshot, "index");
+
   const portfolio: PortfolioSnapshot = {
     ...basePortfolio,
-    focusTicker: lead?.symbol ?? basePortfolio.focusTicker,
+    focusTicker,
     postureLabel:
-      lead?.sentiment === "risk"
-        ? "先看承接"
-        : lead?.boardTone === "semis"
-          ? "弹性回到前排"
+      sentimentSummary.marketSignal === "分歧扩大"
+        ? "先看分歧收敛"
+        : sentimentSummary.marketSignal === "情绪回落"
+          ? "先看承接"
           : lead?.boardTone === "cloud"
             ? "稳住节奏"
-            : "主线继续观察",
+            : basePortfolio.postureLabel,
     breadthSeries: [
-      { label: "AI", value: boardHeat.ai },
-      { label: "云", value: boardHeat.cloud },
-      { label: "半导体", value: boardHeat.semis },
-      { label: "指数", value: boardHeat.index },
+      {
+        label: profile.sectors[0] ?? aiSignal?.name ?? "AI 基建",
+        value: blendHeat(boardHeat.ai, aiSignal?.intensity),
+        sentimentLabel: aiSignal?.label,
+        sentimentTrend: aiSignal?.trend,
+        leaderTicker: aiSignal?.leaders[0],
+      },
+      {
+        label: profile.sectors[1] ?? cloudSignal?.name ?? "云软件",
+        value: blendHeat(boardHeat.cloud, cloudSignal?.intensity),
+        sentimentLabel: cloudSignal?.label,
+        sentimentTrend: cloudSignal?.trend,
+        leaderTicker: cloudSignal?.leaders[0],
+      },
+      {
+        label: semisSignal?.name ?? "半导体",
+        value: blendHeat(boardHeat.semis, semisSignal?.intensity),
+        sentimentLabel: semisSignal?.label,
+        sentimentTrend: semisSignal?.trend,
+        leaderTicker: semisSignal?.leaders[0],
+      },
+      {
+        label: indexSignal?.name ?? "大盘",
+        value: blendHeat(boardHeat.index, indexSignal?.intensity),
+        sentimentLabel: indexSignal?.label,
+        sentimentTrend: indexSignal?.trend,
+        leaderTicker: indexSignal?.leaders[0],
+      },
     ],
     watchTable: basePortfolio.watchTable.map((row) => {
       const item = symbolNews.get(row.ticker);
+      const stockSignal = getStockSentimentSignal(sentiment.snapshot, row.ticker);
 
       return {
         ...row,
         name: item?.headlineTag ?? row.name,
         board: item?.sector ?? row.board,
-        heat: toHeatLabel(item),
-        state: toState(item),
+        heat: toHeatLabel(item, stockSignal?.intensity),
+        state: toState(item, stockSignal?.label),
+        sentimentLabel: stockSignal?.label,
+        sentimentScore: stockSignal?.intensity,
+        sentimentTrend: stockSignal?.trend,
       };
     }),
     marketSnapshot: {
-      availableLabel: `有效信号 ${Math.min(
-        99,
-        58 + Math.round((boardHeat.ai + boardHeat.cloud + boardHeat.semis) / 6),
-      )}%`,
-      focusBoardLabel: lead ? `${lead.sector} 仍是一号观察区` : basePortfolio.marketSnapshot.focusBoardLabel,
-      noteLabel:
-        lead?.sentiment === "risk"
-          ? "高位分歧扩大，先看承接和回撤，再决定是否继续追热点。"
-          : `当前主屏焦点围绕 ${lead?.symbol ?? basePortfolio.focusTicker} 与 ${lead?.sector ?? "主线板块"} 展开。`,
+      availableLabel: buildSummaryLabel(sentimentSummary),
+      focusBoardLabel: sentimentSummary.focusSector
+        ? `${sentimentSummary.focusSector.name} / ${sentimentSummary.focusSector.label}`
+        : basePortfolio.marketSnapshot.focusBoardLabel,
+      noteLabel: sentimentSummary.focusStock
+        ? `${sentimentSummary.focusStock.ticker} 情绪${sentimentSummary.focusStock.label}，当前处于“${sentimentSummary.focusStock.trend}”阶段。`
+        : basePortfolio.marketSnapshot.noteLabel,
       indexLabel:
-        lead?.sentiment === "risk"
-          ? "风险偏好回落"
-          : lead?.boardTone === "index"
-            ? "指数等待方向"
-            : "成长风格偏强",
+        sentimentSummary.marketSignal === "情绪偏热"
+          ? "情绪偏热"
+          : sentimentSummary.marketSignal === "分歧扩大"
+            ? "分歧扩大"
+            : sentimentSummary.marketSignal === "情绪回落"
+              ? "风险回落"
+              : basePortfolio.marketSnapshot.indexLabel,
     },
   };
 
@@ -144,5 +252,7 @@ export async function getMarketSnapshotResult(
     portfolio,
     source: "mock",
     quoteSource: quote.source,
+    sentimentSource: sentiment.source,
+    sentimentSnapshot: sentiment.snapshot,
   };
 }

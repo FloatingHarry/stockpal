@@ -38,6 +38,7 @@ const providerFiles = [
   "normalized-events.mock.json",
   "ranked-briefs.mock.json",
   "companion-prompts.mock.json",
+  "stockpal-sentiment.snapshot.json",
 ];
 
 function clamp(value: number, min: number, max: number) {

@@ -40,7 +40,7 @@ export function MarketDisplayPanel({ portfolio }: MarketDisplayPanelProps) {
       <div className="market-panel">
         <div className="market-panel__summary">
           <div className="market-panel__summary-card">
-            <span className="market-panel__summary-label">摘要</span>
+            <span className="market-panel__summary-label">盘面摘要</span>
             <strong>{portfolio.marketSnapshot.availableLabel}</strong>
           </div>
 
@@ -113,6 +113,20 @@ export function MarketDisplayPanel({ portfolio }: MarketDisplayPanelProps) {
                       }}
                     />
                   </div>
+
+                  {point.sentimentLabel ? (
+                    <div className="market-heat__signal-row">
+                      <span
+                        className={`watch-table__sentiment-chip watch-table__sentiment-chip--${getBoardTone(
+                          point.label,
+                        )}`}
+                      >
+                        情绪 {point.sentimentLabel}
+                      </span>
+                      {point.sentimentTrend ? <span>{point.sentimentTrend}</span> : null}
+                      {point.leaderTicker ? <span>{point.leaderTicker}</span> : null}
+                    </div>
+                  ) : null}
                 </div>
               ))}
             </div>
@@ -141,6 +155,22 @@ export function MarketDisplayPanel({ portfolio }: MarketDisplayPanelProps) {
                     <span>热度 {row.heat}</span>
                     <span>状态 {row.state}</span>
                   </div>
+
+                  {row.sentimentLabel ? (
+                    <div className="watch-table__signal-row">
+                      <span
+                        className={`watch-table__sentiment-chip watch-table__sentiment-chip--${getBoardTone(
+                          row.board,
+                        )}`}
+                      >
+                        情绪 {row.sentimentLabel}
+                      </span>
+                      {typeof row.sentimentScore === "number" ? (
+                        <span>强度 {row.sentimentScore}</span>
+                      ) : null}
+                      {row.sentimentTrend ? <span>{row.sentimentTrend}</span> : null}
+                    </div>
+                  ) : null}
                 </article>
               ))}
             </div>

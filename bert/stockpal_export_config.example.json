@@ -1,0 +1,26 @@
+{
+  "sourceModel": "fine-tuned chinese bert",
+  "items": [
+    {
+      "ticker": "AAPL",
+      "sectorKey": "ai",
+      "sectorName": "AI 基建",
+      "input": "exports/input/aapl_sentiment.tsv",
+      "company": "Apple"
+    },
+    {
+      "ticker": "MSFT",
+      "sectorKey": "cloud",
+      "sectorName": "云软件",
+      "input": "exports/input/msft_sentiment.tsv",
+      "company": "Microsoft"
+    },
+    {
+      "ticker": "NVDA",
+      "sectorKey": "semis",
+      "sectorName": "半导体",
+      "input": "exports/input/nvda_sentiment.tsv",
+      "company": "NVIDIA"
+    }
+  ]
+}

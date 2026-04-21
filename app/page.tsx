@@ -1,10 +1,6 @@
 import { HomeScreen } from "@/components/HomeScreen";
-import { getDemoHomePayload } from "@/lib/demo-content";
-import {
-  defaultProfile,
-  getProfileFromSearchParams,
-  type SearchParams,
-} from "@/lib/mock-data";
+import { getMarketHomePayload } from "@/lib/market-home";
+import { defaultProfile, getProfileFromSearchParams, type SearchParams } from "@/lib/mock-data";
 import { getMarketRefreshMs } from "@/lib/market-feed";
 
 type HomeProps = {
@@ -14,7 +10,7 @@ type HomeProps = {
 export default async function Home({ searchParams }: HomeProps) {
   const resolvedSearchParams = await searchParams;
   const profile = getProfileFromSearchParams(resolvedSearchParams) ?? defaultProfile;
-  const payload = getDemoHomePayload({
+  const payload = await getMarketHomePayload({
     profile,
     companionId: profile.companionId,
     frame: 0,
@@ -32,3 +28,4 @@ export default async function Home({ searchParams }: HomeProps) {
     />
   );
 }
+

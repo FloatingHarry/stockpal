@@ -1,0 +1,142 @@
+{
+  "generatedAt": "2026-04-21T09:30:00.000Z",
+  "sourceModel": "fine-tuned chinese bert (offline sample export)",
+  "stocks": [
+    {
+      "ticker": "AAPL",
+      "company": "Apple",
+      "sectorKey": "ai",
+      "sectorName": "AI 基建",
+      "label": "偏多",
+      "score": 68,
+      "intensity": 74,
+      "trend": "升温",
+      "sampleSize": 182,
+      "positiveShare": 0.54,
+      "neutralShare": 0.31,
+      "negativeShare": 0.15,
+      "note": "产品与生态链讨论升温，情绪偏多。"
+    },
+    {
+      "ticker": "MSFT",
+      "company": "Microsoft",
+      "sectorKey": "cloud",
+      "sectorName": "云软件",
+      "label": "中性",
+      "score": 18,
+      "intensity": 49,
+      "trend": "情绪修复",
+      "sampleSize": 156,
+      "positiveShare": 0.39,
+      "neutralShare": 0.43,
+      "negativeShare": 0.18,
+      "note": "企业预算相关讨论回暖，但追价情绪仍克制。"
+    },
+    {
+      "ticker": "NVDA",
+      "company": "NVIDIA",
+      "sectorKey": "semis",
+      "sectorName": "半导体",
+      "label": "偏多",
+      "score": 82,
+      "intensity": 88,
+      "trend": "分歧扩大",
+      "sampleSize": 214,
+      "positiveShare": 0.61,
+      "neutralShare": 0.22,
+      "negativeShare": 0.17,
+      "note": "高热讨论延续，但情绪开始出现明显分歧。"
+    },
+    {
+      "ticker": "QQQ",
+      "company": "Nasdaq ETF",
+      "sectorKey": "index",
+      "sectorName": "大盘",
+      "label": "中性",
+      "score": 12,
+      "intensity": 36,
+      "trend": "情绪修复",
+      "sampleSize": 144,
+      "positiveShare": 0.36,
+      "neutralShare": 0.47,
+      "negativeShare": 0.17,
+      "note": "科技风格讨论仍多，但情绪比上一轮更克制。"
+    },
+    {
+      "ticker": "SPY",
+      "company": "S&P 500 ETF",
+      "sectorKey": "index",
+      "sectorName": "大盘",
+      "label": "偏空",
+      "score": -16,
+      "intensity": 41,
+      "trend": "回落",
+      "sampleSize": 168,
+      "positiveShare": 0.24,
+      "neutralShare": 0.49,
+      "negativeShare": 0.27,
+      "note": "市场总体风险偏好略有回落。"
+    },
+    {
+      "ticker": "DIA",
+      "company": "Dow ETF",
+      "sectorKey": "index",
+      "sectorName": "大盘",
+      "label": "中性",
+      "score": -4,
+      "intensity": 28,
+      "trend": "回落",
+      "sampleSize": 132,
+      "positiveShare": 0.29,
+      "neutralShare": 0.52,
+      "negativeShare": 0.19,
+      "note": "防守类讨论略有抬头，但整体仍偏观望。"
+    }
+  ],
+  "sectors": [
+    {
+      "key": "ai",
+      "name": "AI 基建",
+      "label": "偏多",
+      "score": 72,
+      "intensity": 79,
+      "trend": "升温",
+      "sampleSize": 338,
+      "leaders": ["AAPL", "NVDA"],
+      "note": "讨论集中在资本开支、产品周期和算力链条。"
+    },
+    {
+      "key": "cloud",
+      "name": "云软件",
+      "label": "中性",
+      "score": 24,
+      "intensity": 52,
+      "trend": "情绪修复",
+      "sampleSize": 192,
+      "leaders": ["MSFT"],
+      "note": "企业软件与预算恢复相关话题正在回暖。"
+    },
+    {
+      "key": "semis",
+      "name": "半导体",
+      "label": "偏多",
+      "score": 84,
+      "intensity": 87,
+      "trend": "分歧扩大",
+      "sampleSize": 214,
+      "leaders": ["NVDA"],
+      "note": "高弹性标的继续吸引关注，但追高分歧开始放大。"
+    },
+    {
+      "key": "index",
+      "name": "大盘",
+      "label": "偏空",
+      "score": -12,
+      "intensity": 36,
+      "trend": "回落",
+      "sampleSize": 444,
+      "leaders": ["QQQ", "SPY"],
+      "note": "指数层面的讨论比科技主题更保守。"
+    }
+  ]
+}

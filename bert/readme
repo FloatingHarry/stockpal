@@ -1,0 +1,14 @@
+文件说明：
+main.py:本地使用的分析程序
+app.py:部署到服务器上的程序
+trans.py:data.xlsx转换为data.txt，test.txt
+guba.ipynb:bert微调训练程序
+testdata：使用main.py在本地进行测试
+traindata：使用guba.ipynb进行训练的数据
+
+运行服务器：
+streamlit run app.py
+
+可能遇到运行不了的解决方案：
+爬虫网站可能有变化guba.eastmoney.com，需要自己修改代码
+

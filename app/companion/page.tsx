@@ -33,6 +33,7 @@ export default async function CompanionPage({
     companionId: companion.id,
     items: preparedFeed.normalizedItems,
     portfolio: snapshot.portfolio,
+    sentimentSnapshot: snapshot.sentimentSnapshot,
   });
 
   return (
@@ -136,3 +137,4 @@ export default async function CompanionPage({
     </main>
   );
 }
+
